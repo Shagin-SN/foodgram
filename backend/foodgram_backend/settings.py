@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework',
     'djoser',
-    'api',
+    'api.apps.ApiConfig',
     'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig',
 ]
@@ -132,4 +132,21 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
 
+}
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'USERNAME_CHANGED_EMAIL_CONFIRMATION': False,
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': False,
+    'SEND_ACTIVATION_EMAIL': False,
+    'SET_PASSWORD_RETYPE': False,
+    'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
+    'HIDE_USERS': False,
+    'PERMISSIONS': {
+        'user_list': ['rest_framework.permissions.AllowAny'],
+    },
+    'SERIALIZERS': {
+        'user': 'api.v1.serializers.UserSerializer',
+        'current_user': 'api.v1.serializers.UserSerializer',
+    }
 }

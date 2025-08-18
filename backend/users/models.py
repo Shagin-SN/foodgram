@@ -19,7 +19,7 @@ class FoodgramUser(AbstractUser):
         unique=True,
     )
     avatar = models.ImageField(
-        upload_to='avatars/',
+        upload_to='users/',
         null=True,
         default=None
     )
@@ -31,7 +31,7 @@ class FoodgramUser(AbstractUser):
     def __str__(self):
         return (
             f"Пользователь {self.username} "
-            f"(Роль: {self.role}, Email: {self.email})"
+            f"Email: {self.email}"
         )
 
 
