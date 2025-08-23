@@ -4,3 +4,7 @@ from django.apps import AppConfig
 class RecipesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'recipes'
+
+    class Meta:
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'

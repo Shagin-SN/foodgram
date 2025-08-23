@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
+from django.db.models import F, Q
+from django.db.models.constraints import CheckConstraint, UniqueConstraint
 
 MAX_NAME_LENGTH = 150
 
@@ -12,7 +14,7 @@ class FoodgramUser(AbstractUser):
     username = models.CharField(
         max_length=MAX_NAME_LENGTH,
         unique=True,
-        validators=[UnicodeUsernameValidator(),],
+        validators=(UnicodeUsernameValidator(),),
     )
     email = models.EmailField(
         "Email",
@@ -36,3 +38,26 @@ class FoodgramUser(AbstractUser):
 
 
 User = get_user_model()
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='follower',
+        verbose_name='Подписчик',
+    )
+    following = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='follows',
+        verbose_name='Подписка',
+    )
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=('user', 'following'), name='unique_follow'
+            ),
+            CheckConstraint(
+                check=~Q(user=F('following')), name='not_follow_self'
+            ),
+        ]
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
