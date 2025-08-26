@@ -1,6 +1,6 @@
 import django_filters
 from django_filters import rest_framework as filters
-from recipes.models import Recipe, Ingredient
+from recipes.models import Ingredient, Recipe
 
 
 def str_to_bool(value):
@@ -53,5 +53,5 @@ class RecipeFilter(django_filters.FilterSet):
         if not user.is_authenticated:
             return queryset.none() if val else queryset
         if val:
-            return queryset.filter(in_shopping_lists__user=user)
-        return queryset.exclude(in_shopping_lists__user=user)
+            return queryset.filter(shopping_cart__user=user)
+        return queryset.exclude(shopping_cart__user=user)

@@ -1,31 +1,14 @@
 import base64
-from django.contrib.auth import get_user_model
+
 from django.core.validators import MinValueValidator
-from django.db.models import (
-    Model,
-    CharField,
-    SlugField,
-    UniqueConstraint,
-    ImageField,
-    TextField,
-    ManyToManyField,
-    ForeignKey,
-    DateTimeField,
-    CASCADE,
-    PositiveSmallIntegerField,
-    CheckConstraint,
-    F, Q,
-)
+from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
+                              ImageField, ManyToManyField, Model,
+                              PositiveSmallIntegerField, SlugField, TextField,
+                              UniqueConstraint)
 
-from .constants import (
-    TAG_MAX_LENGTH,
-    INGREDIENT_MAX_LENGTH,
-    MEASUREMENT_UNIT_MAX_LENGTH,
-    MIN_COOKING_TIME,
-    MIN_AMOUNT,
-)
-
-User = get_user_model()
+from .constants import (INGREDIENT_MAX_LENGTH, MEASUREMENT_UNIT_MAX_LENGTH,
+                        MIN_AMOUNT, MIN_COOKING_TIME, TAG_MAX_LENGTH)
+from users.models import User
 
 
 class Tag(Model):

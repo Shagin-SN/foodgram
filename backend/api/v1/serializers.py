@@ -1,23 +1,20 @@
 import base64
 
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404
+from django.db import transaction
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (CharField, CurrentUserDefault,
-                                        ImageField, ModelSerializer,
+                                        ImageField, IntegerField,
+                                        ModelSerializer,
                                         PrimaryKeyRelatedField, ReadOnlyField,
                                         Serializer, SerializerMethodField,
-                                        ValidationError, IntegerField)
+                                        ValidationError)
 from rest_framework.validators import UniqueTogetherValidator
-from django.db import transaction
-from recipes.models import (Ingredient,
-                            Recipe,
-                            RecipeIngredient,
-                            Tag,
-                            Favorite,
-                            ShoppingCart)
-from users.models import Follow, User
+
 from recipes.constants import MIN_AMOUNT, NAME_MAX_LENGTH
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from users.models import Follow, User
 
 
 class Base64ImageField(ImageField):
@@ -25,9 +22,7 @@ class Base64ImageField(ImageField):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
             ext = format.split('/')[-1]
-
             data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-
         return super().to_internal_value(data)
 
 
@@ -114,17 +109,7 @@ class IngredientReadSerializer(ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ['id', 'name', 'measurement_unit', 'amount']
-
-
-class IngredientWriteSerializer(Serializer):
-    id = IntegerField()
-    amount = IntegerField(min_value=MIN_AMOUNT)
-
-    def validate_id(self, value):
-        if not Ingredient.objects.filter(id=value).exists():
-            raise ValidationError("Ингредиент с таким ID не существует")
-        return value
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class RecipeIngredientReadSerializer(ModelSerializer):
@@ -282,18 +267,33 @@ class ShortRecipeSerializer(ModelSerializer):
 
 
 class SubscriptionSerializer(UserSerializer):
+    is_subscribed = SerializerMethodField()
     recipes = SerializerMethodField()
     recipes_count = SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
-        fields = UserSerializer.Meta.fields + ('recipes', 'recipes_count')
+        fields = UserSerializer.Meta.fields + \
+            ('is_subscribed', 'recipes', 'recipes_count')
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Follow.objects.filter(
+                user=request.user,
+                following=obj
+            ).exists()
+        return False
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        limit = request.query_params.get('recipes_limit') if request else None
+        recipes_limit = request.query_params.get(
+            'recipes_limit') if request else None
         recipes = obj.recipes.all()
-        if limit:
-            recipes = recipes[:int(limit)]
+
+        if recipes_limit and recipes_limit.isdigit():
+            recipes = recipes[:int(recipes_limit)]
+        else:
+            recipes = recipes[:3]
         return ShortRecipeSerializer(recipes, many=True).data
 
     def get_recipes_count(self, obj):
@@ -325,5 +325,4 @@ class FollowSerializer(ModelSerializer):
             raise ValidationError(
                 'Нельзя подписаться на самого себя.'
             )
-
         return user_name

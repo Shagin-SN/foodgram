@@ -1,3 +1,6 @@
+from django.shortcuts import get_object_or_404, redirect
+from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework import filters, status
 from rest_framework.decorators import action, api_view
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
@@ -5,30 +8,19 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.viewsets import (GenericViewSet,
-                                     ModelViewSet,
-                                     ReadOnlyModelViewSet
-                                     )
-from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import get_object_or_404, redirect
-from users.models import User, Follow
-from recipes.models import (Favorite, Recipe, ShoppingCart, Tag, Ingredient)
-from .serializers import (FollowSerializer,
-                          SetPasswordSerializer,
-                          UserSerializer,
-                          UserCreateSerializer,
-                          UserAvatarSerializer,
-                          SubscriptionSerializer,
-                          RecipeReadSerializer,
-                          RecipeWriteSerializer,
-                          ShortRecipeSerializer,
-                          TagSerializer,
-                          IngredientReadSerializer,
-                          IngredientWriteSerializer,
-                          )
-from .filters import RecipeFilter, IngredientFilter
+from rest_framework.viewsets import (GenericViewSet, ModelViewSet,
+                                     ReadOnlyModelViewSet)
+
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomLimitOffsetPagination
 from .permissions import IsAuthorOrReadOnly
+from .serializers import (FollowSerializer, IngredientReadSerializer,
+                          RecipeReadSerializer, RecipeWriteSerializer,
+                          SetPasswordSerializer, ShortRecipeSerializer,
+                          SubscriptionSerializer, TagSerializer,
+                          UserAvatarSerializer, UserCreateSerializer,
+                          UserSerializer)
+from users.models import Follow, User
 
 
 class UserViewSet(ModelViewSet):
@@ -118,25 +110,31 @@ class UserViewSet(ModelViewSet):
         detail=False,
         methods=['get'],
         permission_classes=(IsAuthenticated,),
-        serializer_class=SubscriptionSerializer,
     )
     def subscriptions(self, request):
         user = request.user
         following = User.objects.filter(follows__user=user)
         page = self.paginate_queryset(following)
-        serializer = self.get_serializer(page, many=True)
+        serializer = SubscriptionSerializer(page,
+                                            many=True,
+                                            context={'request': request},
+                                            )
         return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
         methods=['post', 'delete'],
         permission_classes=(IsAuthenticated,),
-        serializer_class=SubscriptionSerializer,
     )
     def subscribe(self, request, id=None):
         user = request.user
         following = get_object_or_404(User, id=id)
 
+        if user == following:
+            return Response(
+                {'detail': 'Нельзя подписаться на самого себя'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         if request.method == 'POST':
             if Follow.objects.filter(user=user, following=following).exists():
                 return Response(
@@ -144,15 +142,21 @@ class UserViewSet(ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             Follow.objects.create(user=user, following=following)
-            serializer = self.get_serializer(following)
+
+            serializer = SubscriptionSerializer(
+                following,
+                context={'request': request},
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif request.method == 'DELETE':
-            follow = get_object_or_404(
-                Follow,
-                user=user,
-                following=following
-            )
+            try:
+                follow = Follow.objects.get(user=user, following=following)
+            except Follow.DoesNotExist:
+                return Response(
+                    {'detail': 'Подписка не найдена'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             follow.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -231,8 +235,13 @@ class RecipeViewSet(ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif request.method == 'DELETE':
-            favorite = get_object_or_404(Favorite, user=user, recipe=recipe)
-            favorite.delete()
+
+            if not Favorite.objects.filter(user=user, recipe=recipe).exists():
+                return Response(
+                    {'detail': 'Рецепт не найден'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            Favorite.objects.filter(user=user, recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
@@ -255,9 +264,15 @@ class RecipeViewSet(ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif request.method == 'DELETE':
-            shopping_cart = get_object_or_404(
-                ShoppingCart, user=user, recipe=recipe)
-            shopping_cart.delete()
+            if not ShoppingCart.objects.filter(
+                user=user,
+                recipe=recipe
+            ).exists():
+                return Response(
+                    {'detail': 'Рецепт не найден'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            ShoppingCart.objects.filter(user=user, recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
@@ -269,7 +284,6 @@ class RecipeViewSet(ModelViewSet):
         user = request.user
         shopping_cart = ShoppingCart.objects.filter(user=user)
 
-        # Собираем ингредиенты
         ingredients = {}
         for item in shopping_cart:
             for recipe_ingredient in item.recipe.recipe_ingredients.all():
@@ -282,13 +296,15 @@ class RecipeViewSet(ModelViewSet):
                 else:
                     ingredients[key] = amount
 
-        # Формируем текстовый файл
         shopping_list = "Список покупок:\n\n"
         for ingredient, amount in ingredients.items():
             shopping_list += f"{ingredient} - {amount}\n"
 
         response = Response(shopping_list, content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename="shopping_list.txt"'
+        response['Content-Disposition'] = (
+            'attachment; '
+            'filename="shopping_list.txt"'
+        )
         return response
 
 
