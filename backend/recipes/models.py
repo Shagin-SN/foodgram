@@ -5,10 +5,10 @@ from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
                               ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, SlugField, TextField,
                               UniqueConstraint)
+from users.models import User
 
 from .constants import (INGREDIENT_MAX_LENGTH, MEASUREMENT_UNIT_MAX_LENGTH,
                         MIN_AMOUNT, MIN_COOKING_TIME, TAG_MAX_LENGTH)
-from users.models import User
 
 
 class Tag(Model):

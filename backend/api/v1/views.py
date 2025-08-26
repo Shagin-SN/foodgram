@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import (GenericViewSet, ModelViewSet,
                                      ReadOnlyModelViewSet)
+from users.models import Follow, User
 
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomLimitOffsetPagination
@@ -20,7 +21,6 @@ from .serializers import (FollowSerializer, IngredientReadSerializer,
                           SubscriptionSerializer, TagSerializer,
                           UserAvatarSerializer, UserCreateSerializer,
                           UserSerializer)
-from users.models import Follow, User
 
 
 class UserViewSet(ModelViewSet):

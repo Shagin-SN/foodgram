@@ -2,6 +2,9 @@ import base64
 
 from django.core.files.base import ContentFile
 from django.db import transaction
+from recipes.constants import NAME_MAX_LENGTH
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (CharField, CurrentUserDefault,
                                         ImageField, IntegerField,
@@ -10,10 +13,6 @@ from rest_framework.serializers import (CharField, CurrentUserDefault,
                                         Serializer, SerializerMethodField,
                                         ValidationError)
 from rest_framework.validators import UniqueTogetherValidator
-
-from recipes.constants import MIN_AMOUNT, NAME_MAX_LENGTH
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
 from users.models import Follow, User
 
 
