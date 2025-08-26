@@ -1,3 +1,4 @@
+[![CI/CD Status](https://github.com/Shagin-SN/foodgram/actions/workflows/main.yml/badge.svg)](https://github.com/Shagin-SN/foodgram/actions)
 # Проект Foodgarm
 
 ## Описание проекта
@@ -59,7 +60,7 @@ python3 manage.py runserver
 Импорт списка ингридиентов^
 
 ```
-python3 manage.py migrate
+python3 manage.py import_ingredients
 ```
 =======
 
