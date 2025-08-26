@@ -12,7 +12,7 @@ class Command(BaseCommand):
     def print_progress(self, current, total, created, duplicates, errors):
         progress = (current / total) * 100 if total > 0 else 0
         self.stdout.write(
-            f'\rПрогресс: {progress:.1f}% | '
+            f'\rПрогресс: {progress: .1f}% | '
             f'Создано: {created} | '
             f'Дубликаты: {duplicates} | '
             f'Ошибки: {errors} | '
