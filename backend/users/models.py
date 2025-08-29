@@ -11,13 +11,8 @@ MAX_NAME_LENGTH = 150
 class FoodgramUser(AbstractUser):
     """Модель пользователя с аватаром"""
 
-    username = models.CharField(
-        max_length=MAX_NAME_LENGTH,
-        unique=True,
-        validators=(UnicodeUsernameValidator(),),
-    )
     email = models.EmailField(
-        "Email",
+        'Email',
         unique=True,
     )
     avatar = models.ImageField(
@@ -26,14 +21,17 @@ class FoodgramUser(AbstractUser):
         default=None
     )
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name',)
+
     class Meta:
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return (
-            f"Пользователь {self.username} "
-            f"Email: {self.email}"
+            f'Пользователь {self.username} '
+            f'Email: {self.email}'
         )
 
 
