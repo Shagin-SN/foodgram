@@ -8,8 +8,9 @@ from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
 from users.models import User
 
 from .constants import (INGREDIENT_MAX_LENGTH, MEASUREMENT_UNIT_MAX_LENGTH,
-                        MIN_AMOUNT, MAX_AMOUNT, MIN_COOKING_TIME, MAX_COOKING_TIME,
-                        TAG_MAX_LENGTH, MAX_RECIPE_NAME_LENGTH)
+                        MIN_AMOUNT, MAX_AMOUNT, MIN_COOKING_TIME,
+                        MAX_COOKING_TIME, TAG_MAX_LENGTH,
+                        MAX_RECIPE_NAME_LENGTH)
 
 
 class Tag(Model):
