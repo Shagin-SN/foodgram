@@ -1,6 +1,6 @@
 import base64
 
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
                               ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, SlugField, TextField,
@@ -8,7 +8,8 @@ from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
 from users.models import User
 
 from .constants import (INGREDIENT_MAX_LENGTH, MEASUREMENT_UNIT_MAX_LENGTH,
-                        MIN_AMOUNT, MIN_COOKING_TIME, TAG_MAX_LENGTH)
+                        MIN_AMOUNT, MAX_AMOUNT, MIN_COOKING_TIME, MAX_COOKING_TIME,
+                        TAG_MAX_LENGTH, MAX_RECIPE_NAME_LENGTH)
 
 
 class Tag(Model):
@@ -64,7 +65,7 @@ class Recipe(Model):
     )
     name = CharField(
         'Название рецепта',
-        max_length=200
+        max_length=MAX_RECIPE_NAME_LENGTH
     )
     image = ImageField(
         'Изображение рецепта',
@@ -85,7 +86,12 @@ class Recipe(Model):
     )
     cooking_time = PositiveSmallIntegerField(
         'Время приготовления (минуты)',
-        validators=(MinValueValidator(MIN_COOKING_TIME),)
+        validators=(MinValueValidator(MIN_COOKING_TIME,
+                                      f'Время готовки не может быть меньше'
+                                      f' {MIN_COOKING_TIME} мин.'),
+                    MaxValueValidator(MAX_COOKING_TIME,
+                                      f'Время готовки не может быть больше'
+                                      f' {MAX_COOKING_TIME} мин.'),)
     )
     pub_date = DateTimeField(
         'Дата публикации',
@@ -104,8 +110,6 @@ class Recipe(Model):
         ordering = ('-pub_date',)
 
     def generate_short_hash(self):
-        if not self.pk:
-            return None
         id_bytes = str(self.pk).encode()
         short_hash = base64.urlsafe_b64encode(id_bytes).decode('utf-8')
         return short_hash.rstrip('=')
@@ -139,7 +143,12 @@ class RecipeIngredient(Model):
     )
     amount = PositiveSmallIntegerField(
         'Количество',
-        validators=[MinValueValidator(MIN_AMOUNT)]
+        validators=(MinValueValidator(MIN_AMOUNT,
+                                      f'Время готовки не может быть меньше'
+                                      f' {MIN_AMOUNT}'),
+                    MaxValueValidator(MAX_AMOUNT,
+                                      f'Время готовки не может быть больше'
+                                      f' {MAX_AMOUNT}'),)
     )
 
     class Meta:
