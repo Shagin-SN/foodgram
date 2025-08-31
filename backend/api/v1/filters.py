@@ -1,14 +1,7 @@
 import django_filters
 from django_filters import rest_framework as filters
+
 from recipes.models import Ingredient, Recipe
-
-
-def str_to_bool(value):
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, str):
-        return value.lower() in ('true', '1', 't', 'yes', 'y')
-    return bool(value)
 
 
 class IngredientFilter(django_filters.FilterSet):
@@ -38,8 +31,15 @@ class RecipeFilter(django_filters.FilterSet):
             'is_in_shopping_cart',
         )
 
+    def _str_to_bool(value):
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.lower() in ('true', '1', 't', 'yes', 'y')
+        return bool(value)
+
     def filter_is_favorited(self, queryset, name, value):
-        val = str_to_bool(value)
+        val = self._str_to_bool(value)
         user = self.request.user
         if not user.is_authenticated:
             return queryset.none() if val else queryset
@@ -48,7 +48,7 @@ class RecipeFilter(django_filters.FilterSet):
         return queryset.exclude(favorited_by__user=user)
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
-        val = str_to_bool(value)
+        val = self._str_to_bool(value)
         user = self.request.user
         if not user.is_authenticated:
             return queryset.none() if val else queryset
