@@ -31,7 +31,7 @@ class RecipeFilter(django_filters.FilterSet):
             'is_in_shopping_cart',
         )
 
-    def _str_to_bool(value):
+    def _str_to_bool(self, value):
         if isinstance(value, bool):
             return value
         if isinstance(value, str):

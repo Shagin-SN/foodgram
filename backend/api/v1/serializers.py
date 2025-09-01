@@ -286,13 +286,12 @@ class SubscriptionSerializer(UserSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes_limit = request.query_params.get(
-            'recipes_limit') if request else None
+            'recipes_limit')
         recipes = obj.recipes.all()
 
         if recipes_limit and recipes_limit.isdigit():
             recipes = recipes[:int(recipes_limit)]
-        else:
-            recipes = recipes[:3]
+
         return ShortRecipeSerializer(recipes, many=True).data
 
     def get_recipes_count(self, obj):
