@@ -242,9 +242,9 @@ class RecipeViewSet(ModelViewSet):
         # Формируем список покупок
         shopping_list = 'Список покупок:\n\n'
         for item in ingredients:
-            shopping_list += f'{item['ingredient__name']} '
-            f'({item['ingredient__measurement_unit']}) '
-            f'- {item['total_amount']}\n'
+            shopping_list += f'{item["ingredient__name"]} '
+            f'({item["ingredient__measurement_unit"]}) '
+            f'- {item["total_amount"]}\n'
 
         response = Response(shopping_list, content_type='text/plain')
         response['Content-Disposition'] = (

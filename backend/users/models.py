@@ -1,11 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.db.models import F, Q
 from django.db.models.constraints import CheckConstraint, UniqueConstraint
-
-MAX_NAME_LENGTH = 150
 
 
 class FoodgramUser(AbstractUser):

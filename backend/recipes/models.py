@@ -1,18 +1,17 @@
-import base64
 import random
 import string
 
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
                               ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, SlugField, TextField,
                               UniqueConstraint)
 from users.models import User
 
-from .constants import (INGREDIENT_MAX_LENGTH, MEASUREMENT_UNIT_MAX_LENGTH,
-                        MIN_AMOUNT, MAX_AMOUNT, MIN_COOKING_TIME,
-                        MAX_COOKING_TIME, TAG_MAX_LENGTH,
-                        MAX_RECIPE_NAME_LENGTH, SHORT_ID_DEFAULT_LENGTH)
+from .constants import (INGREDIENT_MAX_LENGTH, MAX_AMOUNT, MAX_COOKING_TIME,
+                        MAX_RECIPE_NAME_LENGTH, MEASUREMENT_UNIT_MAX_LENGTH,
+                        MIN_AMOUNT, MIN_COOKING_TIME, SHORT_ID_DEFAULT_LENGTH,
+                        TAG_MAX_LENGTH)
 
 
 class Tag(Model):
