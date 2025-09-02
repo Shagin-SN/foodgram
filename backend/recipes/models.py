@@ -1,4 +1,6 @@
 import base64
+import random
+import string
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
@@ -10,7 +12,7 @@ from users.models import User
 from .constants import (INGREDIENT_MAX_LENGTH, MEASUREMENT_UNIT_MAX_LENGTH,
                         MIN_AMOUNT, MAX_AMOUNT, MIN_COOKING_TIME,
                         MAX_COOKING_TIME, TAG_MAX_LENGTH,
-                        MAX_RECIPE_NAME_LENGTH)
+                        MAX_RECIPE_NAME_LENGTH, SHORT_ID_DEFAULT_LENGTH)
 
 
 class Tag(Model):
@@ -110,14 +112,16 @@ class Recipe(Model):
         verbose_name_plural = 'Рецепты'
         ordering = ('-pub_date',)
 
-    def generate_short_hash(self):
-        id_bytes = str(self.pk).encode()
-        short_hash = base64.urlsafe_b64encode(id_bytes).decode('utf-8')
-        return short_hash.rstrip('=')
+    @staticmethod
+    def generate_short_hash():
+        chars = string.ascii_letters + string.digits
+        while True:
+            short_hash = ''.join(random.choices(
+                chars, k=SHORT_ID_DEFAULT_LENGTH))
+            if not Recipe.objects.filter(short_hash=short_hash).first():
+                return short_hash
 
     def get_short_link(self, request=None):
-        if not self.short_hash:
-            return None
         if request is not None:
             domain = request.build_absolute_uri('/')[:-1]
             return f'{domain}/s/{self.short_hash}'
