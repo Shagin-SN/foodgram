@@ -2,13 +2,14 @@ import base64
 
 from django.core.files.base import ContentFile
 from django.db import transaction
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
+from djoser.serializers import UserCreateSerializer as DjoserCreateSerializer
 from rest_framework.serializers import (CurrentUserDefault, HiddenField,
                                         ImageField, ModelSerializer,
                                         PrimaryKeyRelatedField, ReadOnlyField,
                                         SerializerMethodField, ValidationError)
 
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 from users.models import Follow, User
 
 
@@ -38,7 +39,7 @@ class UserSerializer(ModelSerializer):
             'password',
         )
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
         }
 
     def get_is_subscribed(self, obj):
@@ -56,6 +57,28 @@ class UserAvatarSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ('avatar',)
+
+
+class UserCreateSerializer(DjoserCreateSerializer):
+    class Meta(DjoserCreateSerializer.Meta):
+        model = User
+        fields = ('id', 'username', 'email',
+                  'first_name', 'last_name', 'password')
+
+    def validate(self, data):
+        required_fields = ['first_name', 'last_name']
+        missing_fields = []
+
+        for field in required_fields:
+            if field not in data or not data[field]:
+                missing_fields.append(field)
+
+        if missing_fields:
+            raise ValidationError({
+                field: 'Это поле обязательно.' for field in missing_fields
+            })
+
+        return data
 
 
 class TagSerializer(ModelSerializer):
