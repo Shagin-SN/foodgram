@@ -59,28 +59,6 @@ class UserAvatarSerializer(ModelSerializer):
         fields = ('avatar',)
 
 
-class UserCreateSerializer(DjoserCreateSerializer):
-    class Meta(DjoserCreateSerializer.Meta):
-        model = User
-        fields = ('id', 'username', 'email',
-                  'first_name', 'last_name', 'password')
-
-    def validate(self, data):
-        required_fields = ['first_name', 'last_name']
-        missing_fields = []
-
-        for field in required_fields:
-            if field not in data or not data[field]:
-                missing_fields.append(field)
-
-        if missing_fields:
-            raise ValidationError({
-                field: 'Это поле обязательно.' for field in missing_fields
-            })
-
-        return data
-
-
 class TagSerializer(ModelSerializer):
     class Meta:
         model = Tag

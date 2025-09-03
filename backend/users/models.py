@@ -4,6 +4,8 @@ from django.db import models
 from django.db.models import F, Q
 from django.db.models.constraints import CheckConstraint, UniqueConstraint
 
+from .constants import MAX_NAMES_LENGTH
+
 
 class FoodgramUser(AbstractUser):
     """Модель пользователя с аватаром"""
@@ -16,6 +18,16 @@ class FoodgramUser(AbstractUser):
         upload_to='users/',
         null=True,
         default=None
+    )
+
+    first_name = models.CharField(
+        'first_name',
+        max_length=MAX_NAMES_LENGTH,
+    )
+
+    last_name = models.CharField(
+        'last_name',
+        max_length=MAX_NAMES_LENGTH,
     )
 
     USERNAME_FIELD = 'email'
