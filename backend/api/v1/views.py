@@ -13,7 +13,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from users.models import Follow, User
 
 from .filters import IngredientFilter, RecipeFilter
-from .pagination import FoodgramLimitOffsetPagination
+from .pagination import FoodgramLimitPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (FavoriteSerializer, FollowSerializer,
                           IngredientReadSerializer, RecipeReadSerializer,
@@ -123,7 +123,7 @@ class UserViewSet(DjoserViewSet):
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all().prefetch_related(
         'tags', 'recipe_ingredients__ingredient', 'author')
-    pagination_class = FoodgramLimitOffsetPagination
+    pagination_class = FoodgramLimitPagination
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     filterset_class = RecipeFilter
 
