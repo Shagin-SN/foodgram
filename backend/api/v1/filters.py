@@ -1,7 +1,10 @@
 import django_filters
 from django_filters import rest_framework as filters
-
 from recipes.models import Ingredient, Recipe
+# к сожалению isort считает локальными модулями только те чьи имена
+# начинаются с "." и не дает отделять recipes. и users. пустой строкой
+# backend/api/v1/filters.py:3:1:
+# I004 isort found an unexpected blank line in imports
 
 
 class IngredientFilter(django_filters.FilterSet):
