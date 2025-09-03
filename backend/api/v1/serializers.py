@@ -8,6 +8,7 @@ from rest_framework.serializers import (CurrentUserDefault, HiddenField,
                                         ImageField, ModelSerializer,
                                         PrimaryKeyRelatedField, ReadOnlyField,
                                         SerializerMethodField, ValidationError)
+
 from users.models import Follow, User
 
 

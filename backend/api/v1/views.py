@@ -2,16 +2,16 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserViewSet
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
 from rest_framework import filters, status
 from rest_framework.decorators import action, api_view
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from users.models import Follow, User
 
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from users.models import Follow, User
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import FoodgramLimitOffsetPagination
 from .permissions import IsAuthorOrReadOnly
@@ -53,15 +53,14 @@ class UserViewSet(DjoserViewSet):
     )
     def avatar(self, request):
         user = request.user
-        if request.method == 'PUT':
-            serializer = UserAvatarSerializer(
-                user,
-                data={'avatar': request.data.get('avatar')},
-                partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data)
+        serializer = UserAvatarSerializer(
+            user,
+            data={'avatar': request.data.get('avatar')},
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
     @avatar.mapping.delete
     def delete_avatar(self, request):
@@ -113,7 +112,7 @@ class UserViewSet(DjoserViewSet):
             user=user,
             following=following
         ).delete()
-        if delete_cnt == 0:
+        if not delete_cnt:
             return Response(
                 {'detail': 'Подписка не найдена'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -142,9 +141,6 @@ class RecipeViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-    def perform_update(self, serializer):
-        serializer.save()
 
     @action(
         detail=True,
@@ -182,7 +178,7 @@ class RecipeViewSet(ModelViewSet):
             recipe=recipe
         ).delete()
 
-        if delete_cnt == 0:
+        if not delete_cnt:
             return Response(
                 {'detail': 'Рецепт не найден в избранном'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -215,7 +211,7 @@ class RecipeViewSet(ModelViewSet):
             recipe=recipe
         ).delete()
 
-        if delete_cnt == 0:
+        if not delete_cnt:
             return Response(
                 {'detail': 'Рецепт не найден в списке покупок'},
                 status=status.HTTP_400_BAD_REQUEST

@@ -6,8 +6,8 @@ from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
                               ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, SlugField, TextField,
                               UniqueConstraint)
-from users.models import User
 
+from users.models import User
 from .constants import (INGREDIENT_MAX_LENGTH, MAX_AMOUNT, MAX_COOKING_TIME,
                         MAX_RECIPE_NAME_LENGTH, MEASUREMENT_UNIT_MAX_LENGTH,
                         MIN_AMOUNT, MIN_COOKING_TIME, SHORT_ID_DEFAULT_LENGTH,
@@ -89,10 +89,10 @@ class Recipe(Model):
     cooking_time = PositiveSmallIntegerField(
         'Время приготовления (минуты)',
         validators=(MinValueValidator(MIN_COOKING_TIME,
-                                      f'Время готовки не может быть меньше'
+                                      'Время готовки не может быть меньше'
                                       f' {MIN_COOKING_TIME} мин.'),
                     MaxValueValidator(MAX_COOKING_TIME,
-                                      f'Время готовки не может быть больше'
+                                      'Время готовки не может быть больше'
                                       f' {MAX_COOKING_TIME} мин.'),)
     )
     pub_date = DateTimeField(
@@ -148,10 +148,10 @@ class RecipeIngredient(Model):
     amount = PositiveSmallIntegerField(
         'Количество',
         validators=(MinValueValidator(MIN_AMOUNT,
-                                      f'Время готовки не может быть меньше'
+                                      'Время готовки не может быть меньше'
                                       f' {MIN_AMOUNT}'),
                     MaxValueValidator(MAX_AMOUNT,
-                                      f'Время готовки не может быть больше'
+                                      'Время готовки не может быть больше'
                                       f' {MAX_AMOUNT}'),)
     )
 
