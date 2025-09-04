@@ -8,6 +8,8 @@
 Зарегистрированным пользователям доступен сервис «Список покупок».
 Он позволяет создавать список продуктов, которые нужно купить для приготовления выбранных блюд.
 
+Проект доступен по ссылке: https://foodgram.gotdns.ch
+
 ## Как запустить проект:
 
 Клонировать репозиторий и перейти в него в командной строке:
@@ -57,7 +59,7 @@ python3 manage.py migrate
 python3 manage.py runserver
 ```
 
-Импорт списка ингридиентов^
+Импортировать список ингридиентов:
 
 ```
 python3 manage.py import_ingredients
@@ -100,8 +102,8 @@ GET /api/recipes/
 Ответ:
 {
   "count": 123,
-  "next": "http://foodgram.example.org/api/recipes/?page=4",
-  "previous": "http://foodgram.example.org/api/recipes/?page=2",
+  "next": "http://foodgram.gotdns.ch/api/recipes/?page=4",
+  "previous": "http://foodgram.gotdns.ch/api/recipes/?page=2",
   "results": [
     {
       "id": 0,
@@ -131,7 +133,7 @@ GET /api/recipes/
       "is_favorited": true,
       "is_in_shopping_cart": true,
       "name": "string",
-      "image": "http://foodgram.example.org/media/recipes/images/image.jpeg",
+      "image": "http://foodgram.gotdns.ch/media/recipes/images/image.jpeg",
       "text": "string",
       "cooking_time": 1
     }

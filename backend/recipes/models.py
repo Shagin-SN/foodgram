@@ -6,8 +6,8 @@ from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
                               ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, SlugField, TextField,
                               UniqueConstraint)
-from users.models import User
 
+from users.models import User
 from .constants import (INGREDIENT_MAX_LENGTH, MAX_AMOUNT, MAX_COOKING_TIME,
                         MAX_RECIPE_NAME_LENGTH, MEASUREMENT_UNIT_MAX_LENGTH,
                         MIN_AMOUNT, MIN_COOKING_TIME, SHORT_ID_DEFAULT_LENGTH,
