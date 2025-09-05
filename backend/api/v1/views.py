@@ -1,5 +1,6 @@
 from django.db.models import Sum
-from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserViewSet
 from rest_framework import filters, status
@@ -224,28 +225,26 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated],
     )
     def download_shopping_cart(self, request):
-        user = request.user
+        recipes = Recipe.objects.filter(shopping_cart__user=request.user)
+        ingredients = (
+            RecipeIngredient.objects.filter(recipe__in=recipes)
+            .values('ingredient__name', 'ingredient__measurement_unit')
+            .annotate(total_amount=Sum('amount'))
+            .order_by('ingredient__name')
+        )
 
-        ingredients = RecipeIngredient.objects.filter(
-            recipe__shopping_cart__user=user
-        ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit'
-        ).annotate(
-            total_amount=Sum('amount')
-        ).order_by('ingredient__name')
+        lines = [
+            f'{item["ingredient__name"]} '
+            f'({item["ingredient__measurement_unit"]})'
+            f' — {item["total_amount"]}'
+            for item in ingredients
+        ]
 
-        # Формируем список покупок
-        shopping_list = 'Список покупок:\n\n'
-        for item in ingredients:
-            shopping_list += f'{item["ingredient__name"]} '
-            f'({item["ingredient__measurement_unit"]}) '
-            f'- {item["total_amount"]}\n'
-
-        response = Response(shopping_list, content_type='text/plain')
+        response = HttpResponse(
+            '\n'.join(lines), content_type='text/plain; charset=utf-8'
+        )
         response['Content-Disposition'] = (
-            'attachment; '
-            'filename="shopping_list.txt"'
+            'attachment; filename="shopping_list.txt"'
         )
         return response
 
@@ -253,7 +252,9 @@ class RecipeViewSet(ModelViewSet):
 @api_view(['GET'])
 def redirect_short_link(request, short_hash):
     recipe = get_object_or_404(Recipe, short_hash=short_hash)
-    return redirect('recipe-detail', pk=recipe.pk)
+    return HttpResponseRedirect(
+        request.build_absolute_uri(f'/recipes/{recipe.id}/')
+    )
 
 
 class TagViewSet(ReadOnlyModelViewSet):

@@ -126,7 +126,7 @@ class Recipe(Model):
             return f'{domain}/s/{self.short_hash}'
 
     def save(self, *args, **kwargs):
-        if not self.short_hash and self.pk:
+        if not self.short_hash:
             self.short_hash = self.generate_short_hash()
         super().save(*args, **kwargs)
 
